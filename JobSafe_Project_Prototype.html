@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobSafe — Fake Job Scam Risk Checker</title>
+<style>
+:root{--navy:#10234d;--blue:#315efb;--bg:#f4f7ff;--ink:#17233e;--muted:#5e6b85;--line:#dce5fb}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(120deg,#10234d,#315efb);color:white;padding:28px 18px 34px}
+.wrap{max-width:920px;margin:auto}.brand{font-weight:800;letter-spacing:.4px;font-size:14px;opacity:.9}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.12;margin:18px 0 10px}.sub{max-width:680px;line-height:1.6;color:#e4eaff}
+main{max-width:920px;margin:-18px auto 40px;padding:0 14px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 12px 30px #182f6810;margin-bottom:16px}
+h2{font-size:20px;margin:0 0 8px}.hint{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 16px}
+label{display:block;font-weight:700;font-size:14px;margin:15px 0 8px}textarea,input{width:100%;font:inherit;border:1px solid #cbd6ef;border-radius:11px;padding:13px;background:#fbfcff;color:var(--ink)}textarea{min-height:155px;resize:vertical}
+button{background:var(--blue);color:white;border:0;border-radius:11px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;margin-top:13px}button:hover{filter:brightness(.95)}.secondary{background:#e9efff;color:#183b9b;margin-left:7px}
+.result{display:none;border-radius:14px;padding:18px;margin-top:18px;background:#f5f7ff;border:1px solid var(--line)}.pill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;background:#fff0d8;color:#8b4b00}.score{font-size:30px;font-weight:800;margin:10px 0}.bar{height:9px;border-radius:9px;background:#e3e9f7;overflow:hidden}.bar span{display:block;height:100%;width:0;background:#e58a26;transition:width .3s}.result ul{padding-left:20px;line-height:1.7}.note{font-size:13px;color:var(--muted);line-height:1.5}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.mini{padding:15px;border:1px solid var(--line);border-radius:13px;background:#fbfcff}.mini b{display:block;margin-bottom:6px;color:#193a91}.footer{text-align:center;color:var(--muted);font-size:13px;padding:8px 16px 30px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">JOBSAFE · STUDENT PROJECT PROTOTYPE</div><h1>Fake Job Scam Detection<br> &amp; Risk Analysis</h1><p class="sub">A simple educational prototype that checks job-ad text for common scam warning signs. Review the flags carefully and verify employers independently.</p></div></header>
+<main>
+<section class="card">
+<h2>Check a job advertisement</h2>
+<p class="hint">Paste the text of a job ad below. This demo uses transparent keyword rules only; it does not use a trained machine-learning model or verify a company online.</p>
+<label for="job">Job advertisement text</label>
+<textarea id="job" placeholder="Example: Work from home, earn ₹50,000 per month, no experience required. Pay ₹999 registration fee to apply..."></textarea>
+<button onclick="analyze()">Analyze warning signs</button><button class="secondary" onclick="document.getElementById('job').value='';document.getElementById('result').style.display='none'">Clear</button>
+<div id="result" class="result" aria-live="polite"></div>
+</section>
+<section class="card">
+<h2>What this prototype looks for</h2>
+<div class="grid">
+<div class="mini"><b>Upfront payments</b><span>Registration, training, security, or application fees.</span></div>
+<div class="mini"><b>Unrealistic promises</b><span>Very high income claims with little experience or effort.</span></div>
+<div class="mini"><b>Urgency &amp; pressure</b><span>Pressure to act immediately or guaranteed selection.</span></div>
+<div class="mini"><b>Sensitive information</b><span>Requests for OTPs, passwords, or bank details.</span></div>
+</div>
+</section>
+<section class="card"><h2>Safety reminder</h2><p class="hint">A warning flag is not proof that a job is fraudulent, and no flags do not guarantee that a job is genuine. Never share OTPs or passwords, avoid paying to get a job, and confirm openings through the employer's official website or verified contact details.</p></section>
+</main>
+<div class="footer">Academic concept prototype · Machine Learning and NLP are planned future extensions.</div>
+<script>
+function analyze(){
+ const text=document.getElementById('job').value.trim();
+ const out=document.getElementById('result');
+ if(!text){out.style.display='block';out.innerHTML='<b>Please paste a job advertisement first.</b>';return;}
+ const rules=[
+  {name:'Upfront fee or payment request',re:/registration fee|pay (a |an )?(fee|amount|₹|rs\.?)|security deposit|processing fee|application fee|training fee|deposit money|₹\s?\d+\s?(to apply|registration)/i},
+  {name:'Unrealistic salary or guaranteed income',re:/guaranteed (income|salary|job|selection)|earn.{0,25}(per day|daily|per month|weekly)|₹\s?\d{2,3},?\d{0,3}\s?(per day|\/day|per month|\/month)|no experience.{0,30}(salary|earn)/i},
+  {name:'Urgency or pressure tactics',re:/limited seats|apply immediately|hurry|urgent hiring|today only|act now|instant selection|selected without interview/i},
+  {name:'Sensitive information request',re:/otp|one.time password|password|bank details|upi pin|card pin|share your aadhaar|send your pan/i},
+  {name:'Unverified work-from-home promise',re:/work from home|work-from-home|easy money|no skills required|no interview required/i},
+  {name:'Vague or suspicious contact wording',re:/whatsapp only|telegram only|gmail\.com|contact only on whatsapp/i}
+ ];
+ const hits=rules.filter(r=>r.re.test(text));
+ const score=Math.min(95,hits.length*19);
+ let level='Lower apparent risk';let color='#18794e';let bg='#e5f8ee';
+ if(score>=57){level='High caution';color='#b42318';bg='#fff0ef'}else if(score>=20){level='Use caution';color='#8b4b00';bg='#fff4df'}
+ out.style.display='block';out.style.background=bg;
+ out.innerHTML='<span class="pill" style="color:'+color+';background:white">'+level+'</span><div class="score" style="color:'+color+'">Flag score: '+score+'/100</div><div class="bar"><span style="width:'+score+'%;background:'+color+'"></span></div><p><b>Potential warning signs:</b></p>'+(hits.length?'<ul>'+hits.map(h=>'<li>'+h.name+'</li>').join('')+'</ul>':'<p>No listed keyword patterns were found. This does not mean the job is verified or safe.</p>')+'<p class="note"><b>Prototype limitation:</b> this is a rule-based demonstration, not a validated fraud probability or ML prediction. Verify the employer independently.</p>';
+}
+</script>
+</body>
+</html>
